@@ -1,0 +1,43 @@
+# study-fine 백엔드 설정. 값은 전부 환경변수 참조 — 하드코딩 금지(.env는 커밋되지 않는다).
+spring:
+  application:
+    name: study-fine
+  config:
+    # .env(KEY=VALUE)를 확장자 없는 properties 파일로 취급해 읽어들인다. 로컬 실행 시 별도 export 불필요.
+    import: "optional:file:.env[.properties]"
+  jpa:
+    hibernate:
+      # 스키마 변경은 오직 Flyway로만. update는 예고 없이 스키마를 건드리고 컬럼 삭제/타입 변경을 조용히
+      # 무시하므로 절대 쓰지 않는다. validate는 엔티티↔스키마 불일치를 기동 시점에 즉시 실패시킨다.
+      ddl-auto: validate
+    # 기본값 true는 뷰 렌더까지 영속성 컨텍스트를 붙들어 커넥션을 낭비하고 지연로딩 N+1을 숨긴다.
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      # actuator 기본 접두사(/actuator)를 없애 /health 로 바로 노출한다.
+      base-path: /
+      exposure:
+        include: health
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-hours: ${JWT_EXPIRATION_HOURS:12}
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
