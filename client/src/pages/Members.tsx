@@ -152,10 +152,13 @@ export default function Members() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
       />
-      <EditMemberModal
-        member={editTarget}
-        onClose={() => setEditTarget(null)}
-      />
+      {editTarget && (
+        <EditMemberModal
+          key={editTarget.id}
+          member={editTarget}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
       <ConfirmDialog
         open={!!deactivateTarget}
         title="멤버 비활성화"
@@ -308,24 +311,33 @@ function EditMemberModal({
   member,
   onClose,
 }: {
-  member: MemberSummary | null;
+  member: MemberSummary;
   onClose: () => void;
 }) {
   const updateMutation = useUpdateMemberMutation();
   const { showError, showSuccess } = useToast();
-  const [name, setName] = useState(member?.name ?? "");
-  const [role, setRole] = useState<"MEMBER" | "ORGANIZER">(
-    member?.role ?? "MEMBER",
-  );
+  const [name, setName] = useState(member.name);
+  const [role, setRole] = useState<"MEMBER" | "ORGANIZER">(member.role);
+  const [nameError, setNameError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!member) return;
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setNameError("이름을 입력하세요");
+      return;
+    }
+    setNameError(null);
+    // 부분 수정(PATCH)이므로 실제로 바뀐 필드만 전송한다(API.md #8).
+    const request: { name?: string; role?: "MEMBER" | "ORGANIZER" } = {};
+    if (trimmed !== member.name) request.name = trimmed;
+    if (role !== member.role) request.role = role;
+    if (Object.keys(request).length === 0) {
+      onClose();
+      return;
+    }
     try {
-      await updateMutation.mutateAsync({
-        id: member.id,
-        request: { name, role },
-      });
+      await updateMutation.mutateAsync({ id: member.id, request });
       showSuccess("멤버 정보를 수정했습니다");
       onClose();
     } catch (error) {
@@ -334,12 +346,7 @@ function EditMemberModal({
   }
 
   return (
-    <Modal
-      key={member?.id ?? "none"}
-      open={!!member}
-      title="멤버 수정"
-      onClose={onClose}
-    >
+    <Modal open title="멤버 수정" onClose={onClose}>
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div>
           <label htmlFor="edit-name" className="label">
@@ -348,9 +355,10 @@ function EditMemberModal({
           <input
             id="edit-name"
             className="input"
-            defaultValue={member?.name}
+            value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          {nameError && <p className="field-error">{nameError}</p>}
         </div>
         <div>
           <label htmlFor="edit-role" className="label">
@@ -359,7 +367,7 @@ function EditMemberModal({
           <select
             id="edit-role"
             className="input"
-            defaultValue={member?.role}
+            value={role}
             onChange={(e) => setRole(e.target.value as "MEMBER" | "ORGANIZER")}
           >
             <option value="MEMBER">멤버</option>
