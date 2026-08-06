@@ -140,7 +140,7 @@ study-fine은 **하나의 스터디룸**에 대해 회차별 출석을 기록하
 
 - [ ] `FinePolicy` 단위 테스트: 3개 상태 × 단가 조합 + 단가 0 + 스냅샷 불변성
 - [ ] 권한 가드 테스트: MEMBER 토큰으로 ORGANIZER 엔드포인트 호출 → 403 / 토큰 없음 → 401
-- [ ] `./gradlew build` 그린, 프론트 `tsc --noEmit` + `vite build` 그린
+- [ ] `./mvnw -DskipTests package` 그린, 프론트 `tsc --noEmit` + `vite build` 그린
 - [ ] GitHub Actions CI 그린 (백엔드 + 프론트 잡)
 
 **운영**
