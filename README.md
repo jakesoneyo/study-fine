@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/jakesoneyo/study-fine/actions/workflows/ci.yml/badge.svg)](https://github.com/jakesoneyo/study-fine/actions)
 
-🔗 **라이브**: 프론트 배포 예정(Vercel) ｜ 백엔드는 아래 [배포 정책](#배포-정책--라이브-프론트가-백엔드에-못-붙는-이유) 참고
+🔗 **라이브**: [study-fine.vercel.app](https://study-fine.vercel.app) (프론트) · [study-fine-api.onrender.com](https://study-fine-api.onrender.com) (백엔드 API) — 데모 로그인 버튼 눌러서 바로 전체 흐름 체험 가능. 콜드스타트는 아래 [배포 정책](#배포-정책) 참고
 
 카톡방·엑셀·사람의 기억에 의존하던 스터디 출석/벌금 관리를, 회차별 출석 체크 한 번으로 벌금까지 자동 확정 저장하는 앱으로 대체한다. 자세한 배경은 [SPEC.md](./SPEC.md) 참고.
 
@@ -27,7 +27,7 @@ _추후 추가 예정 (출석 체크 화면 GIF 우선)_
 - **백엔드**: Spring Boot 4.1 · Java 21 · Maven · Spring Data JPA(Hibernate 7) · Flyway · Spring Security 7 + Nimbus JWT
 - **프론트**: Vite · React 19 · TypeScript · Tailwind v4 · Zustand · TanStack Query · Zod · axios
 - **DB**: Neon Postgres
-- **배포**: 프론트 Vercel(예정) / 백엔드 로컬 Docker 쇼케이스 (아래 정책 참고)
+- **배포**: 프론트 Vercel 라이브 / 백엔드 Render(Docker, 무료 티어) 라이브 (아래 정책 참고)
 
 ## 아키텍처
 
@@ -41,7 +41,7 @@ graph TB
         Static["정적 번들"]
     end
 
-    subgraph Local["로컬 / Docker (쇼케이스)"]
+    subgraph Render["Render (라이브, Docker)"]
         API["Spring Boot 4 API<br/>:8080"]
     end
 
@@ -57,9 +57,15 @@ graph TB
 
 레이어 구조(Controller → Service → Domain/Repository)와 패키지 구조는 [ARCHITECTURE.md](./ARCHITECTURE.md) 참고.
 
-## 배포 정책 — 라이브 프론트가 백엔드에 못 붙는 이유
+## 배포 정책
 
-이 워크스페이스 규칙상 **Spring 백엔드는 Render 무료 티어(512MB)에서 OOM 위험이 있어 라이브 배포하지 않고 로컬/Docker 쇼케이스로만 운영한다.** 프론트만 Vercel에 배포될 예정이며, 이 경우 **라이브 프론트는 로컬에서만 켜져 있는 백엔드에는 접속할 수 없다.** 전체 동작(로그인 → 출석 체크 → 벌금 확인)을 실제로 확인하려면 아래 [로컬 실행](#로컬-실행) 절차대로 백엔드까지 함께 띄워야 한다.
+Spring Boot는 JVM 특성상 Node 백엔드보다 메모리를 훨씬 많이 먹어서(부팅만 해도 보통 250~400MB), 이 워크스페이스는 기본적으로 Render 무료 티어(512MB)에 Spring을 올리지 않고 로컬 쇼케이스로 두는 걸 원칙으로 한다. 이 프로젝트는 예외적으로 **힙(`-Xmx256m`)·메타스페이스(`-XX:MaxMetaspaceSize=180m`)를 명시적으로 제한하고 SerialGC를 써서 512MB 컨테이너 안에서 실측 검증(기동 + API 호출 반복 후 ~396MB 안정) 후 실제로 라이브 배포했다** — 자세한 튜닝 근거는 [server/Dockerfile](./server/Dockerfile) 주석 참고.
+
+**알아두면 좋은 것**:
+
+- Render 무료 티어는 15분 미접속 시 슬립되고, 다음 요청에서 다시 깨어나는 데 30~60초 정도 걸릴 수 있다(콜드스타트). 첫 로그인 시도가 느리면 이 때문이다 — 새로고침하지 말고 잠깐 기다리면 된다.
+- 계정(워크스페이스) 전체가 월 750 무료 인스턴스 시간을 공유하므로, 이 프로젝트만 따로 죽는 게 아니라 다른 포트폴리오 백엔드와 가동 시간을 나눠 쓴다.
+- 로컬에서 직접 띄워서 확인하고 싶다면 아래 [로컬 실행](#로컬-실행) 절차를 그대로 따르면 된다.
 
 ## 핵심 기능
 
@@ -111,7 +117,7 @@ docker run --env-file .env -p 8080:8080 study-fine-server
 
 ## API 문서
 
-Swagger UI: `http://localhost:8080/swagger-ui/index.html` (백엔드 로컬 기동 후)
+Swagger UI: [study-fine-api.onrender.com/swagger-ui/index.html](https://study-fine-api.onrender.com/swagger-ui/index.html) (라이브) · 로컬 기동 시 `http://localhost:8080/swagger-ui/index.html`
 전체 엔드포인트 15개와 권한 매트릭스는 [API.md](./API.md) 참고.
 
 ## 테스트
