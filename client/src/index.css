@@ -1,111 +1,328 @@
+/**
+ * 디자인 토큰 + 공용 컴포넌트 클래스 (DESIGN.md 시안 B).
+ * 팔레트: 테라코타 액센트 + 쿨 슬레이트 배경, 시맨틱 상태색(정상/지각/결석)은 브랜드 액센트와 분리.
+ * 라운드: 카드 14px / 인풋 10px / 버튼·배지 pill. 라이트/다크 양방향(prefers-color-scheme + data-theme 수동 전환).
+ */
+@import "tailwindcss";
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
   color-scheme: light dark;
+
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-muted: #eef0f3;
+  --border: #e2e5ea;
+  --text-strong: #14171f;
+  --text: #3c4150;
+  --text-muted: #6b7180;
+  --skeleton: #e5e7eb;
+
+  --accent: #b14f30;
+  --accent-hover: #97401f;
+  --accent-fg: #ffffff;
+  --accent-bg: rgba(177, 79, 48, 0.1);
+  --accent-border: rgba(177, 79, 48, 0.35);
+
+  --status-present-bg: #e7f6ec;
+  --status-present-text: #197a3d;
+  --status-present-border: #a6e2bb;
+
+  --status-late-bg: #fdf3e0;
+  --status-late-text: #966210;
+  --status-late-border: #f2cf8e;
+
+  --status-absent-bg: #fbe9e8;
+  --status-absent-text: #b3261e;
+  --status-absent-border: #f0b4b0;
+
+  --radius-card: 14px;
+  --radius-input: 10px;
+  --radius-pill: 999px;
+  --shadow-card:
+    0 1px 2px rgba(20, 23, 31, 0.04), 0 8px 24px rgba(20, 23, 31, 0.06);
+
+  font:
+    15px/1.55 -apple-system,
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+    --bg: #12141a;
+    --surface: #1a1d24;
+    --surface-muted: #21242c;
+    --border: #2b2f3a;
+    --text-strong: #f3f4f7;
+    --text: #c7cad3;
+    --text-muted: #8b90a0;
+    --skeleton: #2b2f3a;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --accent: #e07a52;
+    --accent-hover: #ea9270;
+    --accent-fg: #1a1108;
+    --accent-bg: rgba(224, 122, 82, 0.16);
+    --accent-border: rgba(224, 122, 82, 0.4);
+
+    --status-present-bg: rgba(34, 197, 94, 0.14);
+    --status-present-text: #4ade80;
+    --status-present-border: rgba(34, 197, 94, 0.35);
+
+    --status-late-bg: rgba(245, 158, 11, 0.14);
+    --status-late-text: #fbbf24;
+    --status-late-border: rgba(245, 158, 11, 0.35);
+
+    --status-absent-bg: rgba(239, 68, 68, 0.14);
+    --status-absent-text: #f87171;
+    --status-absent-border: rgba(239, 68, 68, 0.35);
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+/* 수동 테마 전환(헤더 토글) — 시스템 설정을 덮어쓴다. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-muted: #eef0f3;
+  --border: #e2e5ea;
+  --text-strong: #14171f;
+  --text: #3c4150;
+  --text-muted: #6b7180;
+  --skeleton: #e5e7eb;
+  --accent: #b14f30;
+  --accent-hover: #97401f;
+  --accent-fg: #ffffff;
+  --accent-bg: rgba(177, 79, 48, 0.1);
+  --accent-border: rgba(177, 79, 48, 0.35);
+  --status-present-bg: #e7f6ec;
+  --status-present-text: #197a3d;
+  --status-present-border: #a6e2bb;
+  --status-late-bg: #fdf3e0;
+  --status-late-text: #966210;
+  --status-late-border: #f2cf8e;
+  --status-absent-bg: #fbe9e8;
+  --status-absent-text: #b3261e;
+  --status-absent-border: #f0b4b0;
+  --shadow-card:
+    0 1px 2px rgba(20, 23, 31, 0.04), 0 8px 24px rgba(20, 23, 31, 0.06);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #12141a;
+  --surface: #1a1d24;
+  --surface-muted: #21242c;
+  --border: #2b2f3a;
+  --text-strong: #f3f4f7;
+  --text: #c7cad3;
+  --text-muted: #8b90a0;
+  --skeleton: #2b2f3a;
+  --accent: #e07a52;
+  --accent-hover: #ea9270;
+  --accent-fg: #1a1108;
+  --accent-bg: rgba(224, 122, 82, 0.16);
+  --accent-border: rgba(224, 122, 82, 0.4);
+  --status-present-bg: rgba(34, 197, 94, 0.14);
+  --status-present-text: #4ade80;
+  --status-present-border: rgba(34, 197, 94, 0.35);
+  --status-late-bg: rgba(245, 158, 11, 0.14);
+  --status-late-text: #fbbf24;
+  --status-late-border: rgba(245, 158, 11, 0.35);
+  --status-absent-bg: rgba(239, 68, 68, 0.14);
+  --status-absent-text: #f87171;
+  --status-absent-border: rgba(239, 68, 68, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+* {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--bg);
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h2,
+h3 {
+  /*
+   * 색은 여기서 강제하지 않는다 — Tailwind 유틸 클래스(@layer utilities)는 unlayered 규칙보다
+   * 캐스케이드 우선순위가 낮아서, 여기서 color를 정하면 로그인 좌측 패널처럼 어두운 배경 위
+   * 밝은 글자색 유틸을 항상 뭉갠다. 색은 각 사용처에서 명시적으로 지정한다.
+   */
+  font-weight: 600;
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* 로그인 좌측 브랜드 카피 — 한글 단어 단위 줄바꿈 + 균형 잡힌 줄 길이 (사용자 조정 이력 §DESIGN.md) */
+.login-brand-copy h1 {
+  word-break: keep-all;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+.login-brand-copy p {
+  word-break: keep-all;
+  text-wrap: pretty;
+  max-width: 30ch;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: var(--radius-pill);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-strong);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+.btn-danger {
+  background: var(--status-absent-text);
+  color: #ffffff;
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-muted);
+  color: var(--text-strong);
+}
+
+.input {
+  width: 100%;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-strong);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+.input[aria-invalid="true"] {
+  border-color: var(--status-absent-border);
+}
+
+.label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 0.35rem;
+}
+
+.field-error {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--status-absent-text);
+}
+
+.toggle-btn {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.toggle-btn[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+dialog.card {
+  border: 1px solid var(--border);
+}
+dialog::backdrop {
+  background: rgba(15, 17, 21, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
