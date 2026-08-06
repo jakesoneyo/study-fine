@@ -67,21 +67,25 @@ public class AttendanceService {
             throw new BadRequestException("중복된 멤버가 포함되어 있습니다");
         }
 
-        // 1회 조회로 요청 멤버 전원의 실재·활성 여부를 검증한다(멤버마다 findById 금지).
+        // 1회 조회로 요청 멤버 전원의 실재 여부를 확인한다(멤버마다 findById 금지).
         Map<Long, Member> membersById = memberRepository.findAllById(requestedIds).stream()
             .collect(Collectors.toMap(Member::getId, m -> m));
-        boolean allActiveAndExist = requestedIds.stream()
-            .allMatch(id -> membersById.containsKey(id) && membersById.get(id).isActive());
-        if (!allActiveAndExist) {
+
+        // 기존 기록을 1회 조회해 Map으로 만든다 — 항목마다 findBySessionAndMember를 부르면 N+1.
+        // 검증 단계에서도 재사용: 비활성 멤버라도 이 회차에 이미 기록이 있으면 재저장을 허용한다
+        // (API.md #12에서 회차 상세가 기존 기록 있는 비활성 멤버를 포함시키므로, 저장도 그와 일관돼야 함).
+        Map<Long, AttendanceRecord> existingByMember = attendanceRepository.findByStudySessionId(sessionId).stream()
+            .collect(Collectors.toMap(r -> r.getMember().getId(), r -> r));
+
+        boolean allExistAndAllowed = requestedIds.stream()
+            .allMatch(id -> membersById.containsKey(id)
+                && (membersById.get(id).isActive() || existingByMember.containsKey(id)));
+        if (!allExistAndAllowed) {
             throw new BadRequestException("존재하지 않거나 비활성인 멤버가 포함되어 있습니다");
         }
 
         StudyRoom room = studyRoomRepository.findById(STUDY_ROOM_ID)
             .orElseThrow(() -> new NotFoundException("스터디룸 설정을 찾을 수 없습니다"));
-
-        // 기존 기록을 1회 조회해 Map으로 만든다 — 항목마다 findBySessionAndMember를 부르면 N+1.
-        Map<Long, AttendanceRecord> existingByMember = attendanceRepository.findByStudySessionId(sessionId).stream()
-            .collect(Collectors.toMap(r -> r.getMember().getId(), r -> r));
 
         List<AttendanceRecord> newRecords = new ArrayList<>();
         for (AttendanceCheckInRequest.Item item : request.attendances()) {
