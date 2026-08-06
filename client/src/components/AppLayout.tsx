@@ -52,7 +52,7 @@ export function AppLayout() {
         <div className="mb-4 px-2">
           <p className="text-sm font-bold text-[var(--accent)]">study-fine</p>
           <p className="text-xs text-[var(--text-muted)]">
-            스터디 출석·벌금 관리
+            스터디 출결·운영 관리
           </p>
         </div>
         <nav className="flex flex-1 flex-col gap-1" aria-label="주요 메뉴">

@@ -75,11 +75,12 @@ export default function Login() {
             study-fine
           </p>
           <h1 className="mb-4 text-4xl font-bold leading-tight">
-            스터디 벌금, 더 이상 카톡방과 엑셀에 맡기지 마세요
+            스터디 관리, 더 이상 카톡방과 엑셀에 맡기지 마세요
           </h1>
           <p className="text-base leading-relaxed text-[color-mix(in_srgb,var(--surface)_75%,transparent)]">
-            출석을 체크하는 순간 벌금이 자동으로 확정 저장됩니다. 단가를 나중에
-            바꿔도 지난 회차의 금액은 절대 바뀌지 않습니다.
+            회차별 출석 체크부터 멤버 관리까지 한 화면에서 운영하세요. 지각·결석
+            벌금은 체크하는 순간 자동으로 확정 저장되어, 단가를 나중에 바꿔도
+            지난 회차의 금액은 절대 바뀌지 않습니다.
           </p>
         </div>
       </section>
